@@ -161,3 +161,9 @@ body {
   background-color: #b300ff;
   transition: background-color 0.2s ease;
 }
+
+.clear:active,
+.calculate:active {
+  background-color: #008e02;
+  transition: background-color 0.2s ease;
+}
