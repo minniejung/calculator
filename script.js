@@ -211,6 +211,9 @@ operators.forEach((button) => {
     operators.forEach((btn) => btn.classList.remove("isPressed"));
 
     button.classList.add("isPressed");
+    setTimeout(() => {
+      button.classList.remove("isPressed");
+    }, 200);
 
     button.classList.add("button_clicked");
     setTimeout(() => {
