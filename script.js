@@ -93,114 +93,128 @@ let firstNumHasDecimal = false;
 let secondNumHasDecimal = false;
 
 function calculate(n1, operator, n2) {
-  let result = 0;
-
   n1 = parseFloat(n1);
   n2 = parseFloat(n2);
 
   switch (operator) {
     case "+":
-      result = n1 + n2;
-      break;
+      return String(n1 + n2);
     case "-":
-      result = n1 - n2;
-      break;
+      return String(n1 - n2);
     case "*":
-      result = n1 * n2;
-      break;
+      return String(n1 * n2);
     case "/":
-      result = n2 !== 0 ? n1 / n2 : 0;
-      break;
+      return n2 !== 0 ? String(n1 / n2) : "0";
+    default:
+      return "0";
   }
-
-  return String(result);
 }
 
 // ! 여기서부터 Advanced Challenge & Nightmare 과제룰 풀어주세요.
+
+function handleNumber(buttonContent) {
+  if (!operatorForAdvanced) {
+    display.textContent =
+      display.textContent === "0" || previousKey === "operator"
+        ? buttonContent
+        : display.textContent + buttonContent;
+    firstNum = display.textContent;
+  } else {
+    display.textContent =
+      !previousNum || previousKey === "operator"
+        ? buttonContent
+        : display.textContent + buttonContent;
+    previousNum = display.textContent;
+  }
+  previousKey = "number";
+}
+
+function handleOperator(buttonContent) {
+  if (
+    firstNum &&
+    operatorForAdvanced &&
+    previousKey !== "operator" &&
+    previousKey !== "calculate"
+  ) {
+    previousNum = previousNum || firstNum;
+    firstNum = calculate(firstNum, operatorForAdvanced, previousNum);
+
+    display.textContent = firstNum;
+  }
+  if (previousKey === "calculate") {
+    previousNum = null;
+  }
+  operatorForAdvanced = buttonContent;
+  previousKey = "operator";
+  firstNumHasDecimal = false;
+  secondNumHasDecimal = false;
+}
+
+function handleDecimal() {
+  if (!operatorForAdvanced) {
+    if (!firstNumHasDecimal) {
+      display.textContent =
+        previousKey === "operator" || display.textContent === "0"
+          ? "0."
+          : display.textContent + ".";
+      firstNum = display.textContent;
+      firstNumHasDecimal = true;
+    }
+  } else if (!secondNumHasDecimal) {
+    display.textContent =
+      !previousNum || previousKey === "operator" ? "0." : previousNum + ".";
+    previousNum = display.textContent;
+    secondNumHasDecimal = true;
+  }
+  previousKey = "number";
+}
+
+function handleClear() {
+  display.textContent = "0";
+  firstNum = null;
+  operatorForAdvanced = "";
+  previousNum = null;
+  previousKey = "clear";
+  firstNumHasDecimal = false;
+  secondNumHasDecimal = false;
+}
+
+function handleCalculate() {
+  if (firstNum && operatorForAdvanced) {
+    previousNum = previousNum || firstNum;
+    const result = calculate(firstNum, operatorForAdvanced, previousNum);
+    display.textContent = result;
+    firstNum = result;
+
+    console.log(
+      `Current value: ${result}, Prev operator: ${operatorForAdvanced}, Prev num: ${previousNum}`
+    );
+
+    previousKey = "calculate";
+  }
+}
+
 buttonsForAdvanced.addEventListener("click", function (event) {
   const target = event.target;
   const action = target.classList[0];
   const buttonContent = target.textContent;
 
-  if (target.matches("button")) {
-    if (action === "number") {
-      if (!operatorForAdvanced) {
-        if (display.textContent === "0" || previousKey === "operator") {
-          display.textContent = buttonContent;
-        } else {
-          display.textContent += buttonContent;
-        }
-        firstNum = display.textContent;
-      } else {
-        if (!previousNum || previousKey === "operator") {
-          display.textContent = buttonContent;
-        } else {
-          display.textContent += buttonContent;
-        }
-        previousNum = display.textContent;
-      }
-
-      previousKey = "number";
-    }
-
-    if (action === "operator") {
-      if (firstNum) {
-        operatorForAdvanced = buttonContent;
-        previousKey = "operator";
-        firstNumHasDecimal = false;
-        secondNumHasDecimal = false;
-        console.log("previousKeyyyyyyyy", previousKey);
-      }
-    }
-
-    if (action === "decimal") {
-      if (!operatorForAdvanced) {
-        if (!firstNumHasDecimal) {
-          if (previousKey === "operator" || display.textContent === "0") {
-            display.textContent = "0.";
-          } else if (!display.textContent.includes(".")) {
-            display.textContent += ".";
-          }
-          firstNum = display.textContent;
-          firstNumHasDecimal = true;
-        }
-      } else {
-        if (!secondNumHasDecimal) {
-          if (!previousNum || previousKey === "operator") {
-            display.textContent = "0.";
-            previousNum = display.textContent;
-            previousKey = "number";
-          } else if (!previousNum.includes(".")) {
-            previousNum += ".";
-            display.textContent = previousNum;
-          }
-          secondNumHasDecimal = true;
-        }
-      }
-    }
-
-    if (action === "clear") {
-      display.textContent = "0";
-      firstNum = null;
-      operatorForAdvanced = "";
-      previousNum = null;
-      previousKey = "clear";
-      firstNumHasDecimal = false;
-      secondNumHasDecimal = false;
-    }
-
-    if (action === "calculate") {
-      if (firstNum && operatorForAdvanced) {
-        if (!previousNum) previousNum = firstNum;
-
-        const result = calculate(firstNum, operatorForAdvanced, previousNum);
-        display.textContent = result;
-
-        firstNum = result;
-
-        previousKey = "calculate";
-      }
-    }
+  switch (action) {
+    case "number":
+      handleNumber(buttonContent);
+      break;
+    case "operator":
+      handleOperator(buttonContent);
+      break;
+    case "decimal":
+      handleDecimal(buttonContent);
+      break;
+    case "clear":
+      handleClear(buttonContent);
+      break;
+    case "calculate":
+      handleCalculate(buttonContent);
+      break;
   }
 });
 
